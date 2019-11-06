@@ -1,0 +1,70 @@
+<project name="ServiceCanada" default="dist" basedir=".">
+  <description>
+    Canada.ca build script for AEM
+  </description>
+  <!-- set global properties for this build -->
+  <property environment="env" />
+  <property name="dist" location="dist"/>
+  <property name="build" location="build"/>
+  <property name="packageName" value="no-package-name"/>
+  <property name="aemLocation" value="/apps/canada/nopackagename"/>
+  <property name="AEMUID" value="nada"/>
+  <property name="AEMPWD" value="nada"/>
+  <property name="AEMDest" value="dev"/>
+  <property name="verboseFlag" value="1" />
+    <script language="javascript">
+        var logger = project.getBuildListeners().firstElement();
+        var verboseMode = project.getProperty( "verboseFlag" )
+        if ( ! "1".equals( verboseMode ) )
+            logger.setMessageOutputLevel( 0 );
+    </script>
+  <tstamp>
+      <format property="run.time" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'+000'" timezone="GMT"/>
+  </tstamp>
+  
+<!-- ================================================
+      BUILD
+     ================================================ -->
+  <target name="dist" depends="stage" description="generate the distribution file and delivers the payload">
+    <zip destfile="${dist}/${packageName}-SNAPSHOT.zip" basedir="${build}" />
+    <exec executable="curl">
+	
+	<arg line="-x http://proxy.prv:443 --insecure -v -u ${AEMUID}:${AEMPWD} -F file=@'${dist}/${packageName}-SNAPSHOT.zip' -F name='${packageName}-SNAPSHOT' -F force=true -F install=true ${AEMDest}/crx/packmgr/service.jsp"/>
+    </exec>
+  </target>
+<!-- ================================================
+      HELPER TARGETS
+     ================================================ -->
+
+  <!-- Clean the folders -->
+  <target name="clean">
+    <delete dir="${dist}"/>
+    <delete dir="${build}"/>
+  </target>
+
+ <!-- Make the folders for the build -->
+  <target name="prep" depends="clean">
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${build}"/>
+  </target>
+
+ <!-- Sets the stage of all the files -->
+  <target name="stage" depends="prep">
+    <!-- copy the jcr_root to the build folder -->
+    <copy todir="${build}/jcr_root">
+      <fileset dir="jcr_root"/>
+    </copy>
+    <!-- copy the META-INF to the build folder -->
+    <copy todir="${build}/META-INF">
+      <fileset dir="META-INF"/>
+    </copy>
+    <!-- correct the build time for the properties.file -->
+    <replace file="${build}/META-INF/vault/properties.xml" token="@created@" value="${run.time}" />
+    <replace file="${build}/META-INF/vault/properties.xml" token="@packagename@" value="${packageName}" />
+    <replace file="${build}/META-INF/vault/definition/.content.xml" token="@created@" value="${run.time}" />
+    <replace file="${build}/META-INF/vault/definition/.content.xml" token="@packagename@" value="${packageName}" />
+    <replace file="${build}/META-INF/vault/definition/.content.xml" token="@aemLocation@" value="${aemLocation}" />
+	
+  </target>
+
+</project>

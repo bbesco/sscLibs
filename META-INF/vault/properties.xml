@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>@packagename@ - Manual Build</comment>
+<entry key="createdBy">git-ci</entry>
+<entry key="name">@packagename@</entry>
+<entry key="created">@created@</entry>
+<entry key="version">SNAPSHOT</entry>
+<entry key="requiresRoot">false</entry>
+<entry key="group">SNAPSHOTS</entry>
+<entry key="description">Manual Build</entry>
+</properties>
